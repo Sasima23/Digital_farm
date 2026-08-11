@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="section-header">
+  <div>
+    <h1 class="section-title">Compliance & Alerts</h1>
+    <div class="section-sub">Withdrawal timers and marketing violations</div>
+  </div>
+</div>
+
+{% if violations %}
+<div class="violation-banner">
+  <div class="violation-head">{{ violations|length }} Violation{{ 's' if violations|length > 1 }}</div>
+  {% for t, status in violations %}
+    <div style="font-size:13px; margin-bottom:6px;">
+      <strong>{{ t.farm.name }}</strong> · {{ t.group.name }} — {{ t.drug.name }} marketed on
+      {{ t.marketed_date.strftime('%d %b %Y') }}, withdrawal cleared {{ t.withdrawal_end().strftime('%d %b %Y') }}.
+    </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<div class="panel-title">Currently in withdrawal</div>
+<div class="panel" style="padding:0;">
+  {% if not in_withdrawal %}
+    <div style="padding:16px; font-size:13px; color:var(--ink-soft);">No active withdrawal periods right now.</div>
+  {% endif %}
+  {% for t, status in in_withdrawal %}
+  {% set label, tone, days_left = status %}
+  <div class="list-row">
+    <div>
+      <div class="list-item-title">{{ t.farm.name }} · {{ t.group.name }} — {{ t.drug.name }}</div>
+      <div class="list-item-sub">Clears {{ t.withdrawal_end().strftime('%d %b %Y') }}</div>
+    </div>
+    <div style="display:flex; align-items:center; gap:12px;">
+      <div class="ear-tag et-{{ tone }}">
+        <span class="hole"></span>
+        <div>
+          <div class="label">{{ label|upper }}</div>
+          {% if days_left > 0 %}<div class="days">{{ days_left }}d remaining</div>{% endif %}
+        </div>
+      </div>
+      {% if current_role in permissions.mark_marketed %}
+      <form method="post" action="{{ url_for('mark_marketed', treatment_id=t.id) }}">
+        <button class="btn btn-ghost btn-small" type="submit">Mark marketed</button>
+      </form>
+      {% endif %}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

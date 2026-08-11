@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="section-header">
+  <div>
+    <h1 class="section-title">Treatment Log</h1>
+    <div class="section-sub">Every dose recorded, every withdrawal timed</div>
+  </div>
+  {% if current_role in permissions.add_treatment %}
+  <button class="btn" onclick="document.getElementById('addForm').classList.toggle('hidden')">+ Log treatment</button>
+  {% endif %}
+</div>
+
+{% if current_role in permissions.add_treatment %}
+<form id="addForm" class="panel hidden form-grid" method="post" action="{{ url_for('add_treatment') }}" style="margin-bottom:20px;">
+  <div class="field">
+    <label>Farm</label>
+    <select name="farm_id" id="farmSelect" onchange="loadGroups()">
+      {% for f in farms %}<option value="{{ f.id }}">{{ f.name }}</option>{% endfor %}
+    </select>
+  </div>
+  <div class="field">
+    <label>Herd / group</label>
+    <select name="group_id" id="groupSelect"></select>
+  </div>
+  <div class="field">
+    <label>Drug</label>
+    <select name="drug_id">
+      {% for d in drugs %}<option value="{{ d.id }}">{{ d.name }}{% if d.cia %} (CIA){% endif %}</option>{% endfor %}
+    </select>
+  </div>
+  <div class="field"><label>Dose amount</label><input name="dose" placeholder="e.g. 10"></div>
+  <div class="field"><label>Dose unit</label><input name="unit" placeholder="mg/kg"></div>
+  <div class="field"><label>Start date</label><input type="date" name="start_date" required></div>
+  <div class="field"><label>End date</label><input type="date" name="end_date" required></div>
+  <div class="field"><label>Reason</label><input name="reason" placeholder="e.g. Mastitis"></div>
+  <div class="field"><label>Prescribed by</label><input name="prescribed_by" placeholder="Dr. Name"></div>
+  <div style="width:100%;"><button type="submit" class="btn">Save treatment</button></div>
+</form>
+{% endif %}
+
+<div class="panel" style="padding:0;">
+  <table>
+    <thead>
+      <tr>
+        <th>FARM</th><th>HERD</th><th>DRUG</th><th>DOSE</th><th>STARTED</th><th>REASON</th><th>LOGGED BY</th><th>STATUS</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for t, status in rows %}
+      {% set label, tone, days_left = status %}
+      <tr>
+        <td>{{ t.farm.name }}</td>
+        <td>{{ t.group.name }}</td>
+        <td>{{ t.drug.name }}{% if t.drug.cia %}<span class="badge badge-rust">CIA</span>{% endif %}</td>
+        <td class="mono">{{ t.dose }} {{ t.unit }}</td>
+        <td>{{ t.start_date.strftime('%d %b %Y') }}</td>
+        <td style="color:var(--ink-soft);">{{ t.reason or "—" }}</td>
+        <td class="mono" style="font-size:11.5px; color:var(--ink-soft);">{{ t.logged_by or "—" }}</td>
+        <td>
+          <div class="ear-tag et-{{ tone }}">
+            <span class="hole"></span>
+            <div>
+              <div class="label">{{ label|upper }}</div>
+              {% if days_left > 0 %}<div class="days">{{ days_left }}d remaining</div>{% endif %}
+            </div>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<style>.hidden{ display:none; }</style>
+<script>
+async function loadGroups(){
+  const farmId = document.getElementById('farmSelect').value;
+  const res = await fetch(`/api/groups-for-farm/${farmId}`);
+  const groups = await res.json();
+  const sel = document.getElementById('groupSelect');
+  sel.innerHTML = groups.map(g => `<option value="${g.id}">${g.name}</option>`).join('');
+}
+document.addEventListener('DOMContentLoaded', loadGroups);
+</script>
+{% endblock %}

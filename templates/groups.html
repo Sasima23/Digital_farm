@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="section-header">
+  <div>
+    <h1 class="section-title">Herds & Farms</h1>
+    <div class="section-sub">The registry every treatment record links back to</div>
+  </div>
+</div>
+
+<div class="grid-2">
+  <div>
+    <div class="panel-title">Farms</div>
+    {% for f in farms %}
+      <div class="panel" style="margin-bottom:8px; padding:10px 12px;">
+        <div class="list-item-title">{{ f.name }}</div>
+        <div class="list-item-sub">{{ f.location }} · {{ f.species }}</div>
+      </div>
+    {% endfor %}
+    {% if current_role in permissions.add_farm %}
+    <form class="add-card" method="post" action="{{ url_for('add_farm') }}">
+      <input name="name" placeholder="Farm name" required>
+      <input name="location" placeholder="Location">
+      <input name="species" placeholder="Primary species">
+      <button class="btn btn-small" type="submit">+ Add farm</button>
+    </form>
+    {% else %}
+    <div style="font-size:11.5px; color:var(--ink-soft); margin-top:6px;">Only veterinarians register new farms.</div>
+    {% endif %}
+  </div>
+
+  <div>
+    <div class="panel-title">Herd groups</div>
+    {% for g in groups %}
+      <div class="panel" style="margin-bottom:8px; padding:10px 12px; display:flex; justify-content:space-between;">
+        <div>
+          <div class="list-item-title">{{ g.name }}</div>
+          <div class="list-item-sub">{{ g.farm.name }} · {{ g.species }} · {{ g.headcount }} head</div>
+        </div>
+        <div style="align-self:center; font-size:11px; color:var(--slate); text-transform:uppercase;">{{ g.product }}</div>
+      </div>
+    {% endfor %}
+    {% if current_role in permissions.add_group %}
+    <form class="add-card" method="post" action="{{ url_for('add_group') }}">
+      <select name="farm_id">
+        {% for f in farms %}<option value="{{ f.id }}">{{ f.name }}</option>{% endfor %}
+      </select>
+      <input name="name" placeholder="Group name" required>
+      <input name="species" placeholder="Species">
+      <select name="product">
+        <option value="meat">Meat / slaughter</option>
+        <option value="dairy">Dairy / milk</option>
+      </select>
+      <input type="number" name="headcount" placeholder="Headcount">
+      <button class="btn btn-small" type="submit">+ Add group</button>
+    </form>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

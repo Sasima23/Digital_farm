@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="section-header">
+  <div>
+    <h1 class="section-title">Import Treatment Records</h1>
+    <div class="section-sub">Upload a CSV export from your paper log or herd software</div>
+  </div>
+</div>
+
+<div class="panel" style="margin-bottom:18px;">
+  <div style="font-size:13px; margin-bottom:12px; color:var(--ink-soft);">
+    Expected columns: <code class="mono">farm, group, drug, dose, unit, startDate, endDate, reason, prescribedBy, marketedDate</code>
+    (marketedDate optional, dates as YYYY-MM-DD). Farm, group, and drug names must match existing records.
+  </div>
+  <form method="post" enctype="multipart/form-data" action="{{ url_for('upload_csv') }}">
+    <label class="dropzone">
+      Choose CSV file
+      <input type="file" name="file" accept=".csv" style="display:none;" onchange="this.form.submit()">
+    </label>
+  </form>
+</div>
+
+{% if imported is defined %}
+<div class="panel">
+  <div style="display:flex; gap:10px; align-items:center; margin-bottom:10px;">
+    <strong>{{ imported }} record(s) imported</strong>
+  </div>
+  {% if skipped %}
+    <div style="margin-bottom:8px; font-weight:600; color:var(--rust);">{{ skipped|length }} row(s) skipped</div>
+    {% for row, reason in skipped %}
+      <div class="mono" style="font-size:11.5px; color:var(--ink-soft);">Row {{ row }}: {{ reason }}</div>
+    {% endfor %}
+  {% endif %}
+</div>
+{% endif %}
+{% endblock %}

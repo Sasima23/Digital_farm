@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Digital Farm — Sign in</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<div class="login-shell">
+  <div class="login-card">
+    <div class="login-brand">Digital Farm</div>
+    <div class="login-sub">Sign in to see the herds and records your role covers.</div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flash-stack">
+          {% for category, msg in messages %}
+            <div class="flash flash-{{ category }}">{{ msg }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <form method="post" action="{{ url_for('login_post') }}">
+      <div class="login-field">
+        <label>Username</label>
+        <input name="username" autocomplete="username" required autofocus>
+      </div>
+      <div class="login-field">
+        <label>Password</label>
+        <input type="password" name="password" autocomplete="current-password" required>
+      </div>
+      <button class="btn" type="submit" style="width:100%; justify-content:center;">Sign in</button>
+    </form>
+
+    <div class="login-demo">
+      Demo accounts (password shown next to each) — each role sees a different slice of the app:
+      <div class="login-demo-row"><span>farmer_greenfield</span><span>farmer123</span></div>
+      <div class="login-demo-row"><span>farmer_hillcrest</span><span>farmer123</span></div>
+      <div class="login-demo-row"><span>farmer_sunridge</span><span>farmer123</span></div>
+      <div class="login-demo-row"><span>vet_kavya</span><span>vet123</span></div>
+      <div class="login-demo-row"><span>vet_arjun</span><span>vet123</span></div>
+      <div class="login-demo-row"><span>regulator1</span><span>regulator123</span></div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

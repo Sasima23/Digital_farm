@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="section-header">
+  <div>
+    <h1 class="section-title">Antibiotic Catalog</h1>
+    <div class="section-sub">Reference withdrawal periods — always confirm against the current product label and prescribing vet</div>
+  </div>
+</div>
+
+<div class="panel" style="padding:0;">
+  <table>
+    <thead>
+      <tr><th>DRUG</th><th>CLASS</th><th>MEAT WITHDRAWAL</th><th>MILK WITHDRAWAL</th><th>NOTES</th></tr>
+    </thead>
+    <tbody>
+      {% for d in drugs %}
+      <tr>
+        <td style="font-weight:600;">{{ d.name }}{% if d.cia %}<span class="badge badge-rust">CIA</span>{% endif %}</td>
+        <td>{{ d.drug_class }}</td>
+        <td class="mono">{{ d.meat_days }}d</td>
+        <td class="mono">{{ d.milk_days ~ "d" if d.milk_days else "n/a" }}</td>
+        <td style="color:var(--ink-soft); font-size:12.5px;">{{ d.notes }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

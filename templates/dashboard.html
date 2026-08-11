@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="section-header">
+  <div>
+    <h1 class="section-title">Farm Overview</h1>
+    <div class="section-sub">Live status across all monitored herds</div>
+  </div>
+</div>
+
+<div class="kpi-row">
+  <div class="kpi-card tone-amber">
+    <div class="kpi-label mono">Active Treatments</div>
+    <div class="kpi-value">{{ active }}</div>
+    <div class="kpi-sub">animals currently being treated</div>
+  </div>
+  <div class="kpi-card tone-amber">
+    <div class="kpi-label mono">In Withdrawal</div>
+    <div class="kpi-value">{{ withdrawal }}</div>
+    <div class="kpi-sub">not yet cleared for market</div>
+  </div>
+  <div class="kpi-card tone-rust">
+    <div class="kpi-label mono">Violations</div>
+    <div class="kpi-value">{{ violations }}</div>
+    <div class="kpi-sub">marketed before withdrawal cleared</div>
+  </div>
+  <div class="kpi-card tone-slate">
+    <div class="kpi-label mono">Critical-Use Drug Share</div>
+    <div class="kpi-value">{{ cia_pct }}%</div>
+    <div class="kpi-sub">of all logged treatments</div>
+  </div>
+</div>
+
+<div class="grid-2">
+  <div class="panel" style="flex:2 1 380px;">
+    <div class="panel-title">Usage by drug class</div>
+    <canvas id="classChart" height="90"></canvas>
+  </div>
+  <div class="panel" style="flex:1 1 260px;">
+    <div class="panel-title">Nearing clearance</div>
+    {% if not upcoming %}
+      <div style="font-size:12.5px;color:var(--ink-soft);">Nothing currently in withdrawal.</div>
+    {% endif %}
+    {% for t, label, tone, days_left in upcoming %}
+      <div class="list-row" style="padding:0 0 12px 0; border:none;">
+        <div>
+          <div class="list-item-title">{{ t.farm.name }}</div>
+          <div class="list-item-sub">{{ t.group.name }} · {{ t.drug.name }}</div>
+        </div>
+        <div class="ear-tag et-{{ tone }}">
+          <span class="hole"></span>
+          <div>
+            <div class="label">{{ label|upper }}</div>
+            {% if days_left > 0 %}<div class="days">{{ days_left }}d remaining</div>{% endif %}
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+
+<script>
+const ctx = document.getElementById('classChart');
+new Chart(ctx, {
+  type: 'bar',
+  data: {
+    labels: {{ class_labels|tojson }},
+    datasets: [{
+      data: {{ class_values|tojson }},
+      backgroundColor: ['#3F6B4A', '#C98A2C', '#4A6670', '#A63D2F', '#7C9885', '#8C6D3F'],
+      borderRadius: 5,
+    }]
+  },
+  options: {
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { beginAtZero: true, ticks: { precision: 0 } }
+    }
+  }
+});
+</script>
+{% endblock %}
