@@ -1,4 +1,4 @@
-# Herd Watch — Antibiotic Use & Safety Monitor (Flask)
+# Digital — Antibiotic Use & Safety Monitor (Flask)
 
 A Flask web app for tracking antibiotic treatments in livestock, computing withdrawal-period
 compliance, and flagging antimicrobial resistance risk.
